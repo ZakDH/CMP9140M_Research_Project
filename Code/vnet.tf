@@ -1,17 +1,3 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "=3.0.0"
-    }
-  }
-}
-
-# Configure the Microsoft Azure Provider
-provider "azurerm" {
-  features {}
-}
-
 resource "azurerm_resource_group" "project-rg" {
   name     = "project-resources"
   location = "UK South"
@@ -20,9 +6,8 @@ resource "azurerm_resource_group" "project-rg" {
   }
 }
 
-
 resource "azurerm_virtual_network" "project-vn" {
-  name                = "project-network"
+  name                = "project-vn"
   location            = azurerm_resource_group.project-rg.location
   resource_group_name = azurerm_resource_group.project-rg.name
   address_space       = ["10.0.0.0/24"]
