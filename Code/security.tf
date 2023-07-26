@@ -21,15 +21,8 @@ resource "azurerm_network_security_rule" "project-dev-rule" {
   network_security_group_name = azurerm_network_security_group.project-sg.name
 }
 
-resource "azurerm_subnet_network_security_group_association" "project-sga-1" {
-  subnet_id                 = azurerm_subnet.az1_subnet.id
-  network_security_group_id = azurerm_network_security_group.project-sg.id
-}
-resource "azurerm_subnet_network_security_group_association" "project-sga-2" {
-  subnet_id                 = azurerm_subnet.az2_subnet.id
-  network_security_group_id = azurerm_network_security_group.project-sg.id
-}
-resource "azurerm_subnet_network_security_group_association" "project-sga-3" {
-  subnet_id                 = azurerm_subnet.az3_subnet.id
+resource "azurerm_subnet_network_security_group_association" "sga" {
+  count                     = var.instance_count
+  subnet_id                 = azurerm_subnet.subnet[count.index].id
   network_security_group_id = azurerm_network_security_group.project-sg.id
 }

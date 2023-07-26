@@ -11,3 +11,11 @@ terraform {
 provider "azurerm" {
   features {}
 }
+
+resource "azurerm_resource_group" "project-rg" {
+  name     = "project-resources"
+  location = "UK South"
+  tags = {
+    environment = "dev"
+  }
+}
