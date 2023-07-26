@@ -1,10 +1,19 @@
-# Create availability sets for each tier
-resource "azurerm_availability_set" "project-as-web" {
-  name                         = "project-as-web"
-  location                     = azurerm_resource_group.project-rg.location
-  resource_group_name          = azurerm_resource_group.project-rg.name
-  platform_update_domain_count = 1
-  platform_fault_domain_count  = 1
+# Create a web app in the web tier
+resource "azurerm_service_plan" "web_tier_plan" {
+  name                = "web_tier_plan"
+  location            = azurerm_resource_group.project-rg.location
+  resource_group_name = azurerm_resource_group.project-rg.name
+  os_type             = "Linux"
+  sku_name            = "P1v2"
+}
+
+resource "azurerm_linux_web_app" "web-tier-app" {
+  name                = "web-tier-app"
+  location            = azurerm_resource_group.project-rg.location
+  resource_group_name = azurerm_resource_group.project-rg.name
+  service_plan_id     = azurerm_service_plan.web_tier_plan.id
+  site_config {
+  }
 }
 
 resource "azurerm_windows_virtual_machine" "vm" {
@@ -18,7 +27,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   admin_password        = "P@ssw0rd123!"
   network_interface_ids = [azurerm_network_interface.nic[count.index].id]
   os_disk {
-    name                 = "${var.vm_name}${count.index + 1}-c"
+    name                 = "vm-${count.index + 1}-c"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
