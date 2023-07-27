@@ -31,3 +31,9 @@ variable "subnets" {
     "subnet-3" = ["10.0.0.64/27"]
   }
 }
+
+variable "username" {
+  type        = string
+  description = "The username for the local account that will be created on the new VM."
+  default     = "azureadmin"
+}
