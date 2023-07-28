@@ -1,8 +1,8 @@
 resource "azurerm_network_security_group" "project-sg" {
   name                = "project-sg"
-  location            = azurerm_resource_group.project-rg.location
-  resource_group_name = azurerm_resource_group.project-rg.name
-    security_rule {
+  location            = azurerm_resource_group.RG-UK-South.location
+  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  security_rule {
     name                       = "AllowHTTP"
     description                = "Allow HTTP"
     priority                   = 100

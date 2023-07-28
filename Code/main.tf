@@ -12,8 +12,8 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_resource_group" "project-rg" {
-  name     = "project-resources"
+resource "azurerm_resource_group" "RG-UK-South" {
+  name     = "RG-UK-South"
   location = "UK South"
   tags = {
     environment = "dev"

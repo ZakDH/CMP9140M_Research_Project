@@ -1,6 +1,6 @@
 variable "resource_group_name" {
   description = "Name of the Azure resource group"
-  default     = "project-resources"
+  default     = "RG-UK-South"
 }
 
 variable "location" {
@@ -36,4 +36,9 @@ variable "username" {
   type        = string
   description = "The username for the local account that will be created on the new VM."
   default     = "azureadmin"
+}
+
+variable "heading_one" {
+  default = "Hi i am a virtual machine."
+  type    = string
 }

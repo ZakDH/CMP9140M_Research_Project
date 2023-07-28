@@ -1,7 +1,7 @@
 resource "azurerm_network_interface" "nic" {
   name                = "nic-01-${var.vm_name}${count.index + 1}"
-  location            = azurerm_resource_group.project-rg.location
-  resource_group_name = azurerm_resource_group.project-rg.name
+  location            = azurerm_resource_group.RG-UK-South.location
+  resource_group_name = azurerm_resource_group.RG-UK-South.name
   count               = var.instance_count
   ip_configuration {
     name                          = "${var.vm_name}${count.index + 1}"
