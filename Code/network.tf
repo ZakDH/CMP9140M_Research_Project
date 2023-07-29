@@ -1,5 +1,5 @@
-resource "azurerm_virtual_network" "project-vn" {
-  name                = "project-vn"
+resource "azurerm_virtual_network" "vnet" {
+  name                = "vnet"
   location            = azurerm_resource_group.RG-UK-South.location
   resource_group_name = azurerm_resource_group.RG-UK-South.name
   address_space       = ["10.0.0.0/24"]
@@ -9,10 +9,10 @@ resource "azurerm_virtual_network" "project-vn" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  count                = var.instance_count
-  name                 = "subnet-${count.index + 1}"
+  for_each             = var.subnet_map
+  name                 = each.value.name
   resource_group_name  = azurerm_resource_group.RG-UK-South.name
-  virtual_network_name = azurerm_virtual_network.project-vn.name
-  address_prefixes     = ["10.0.0.${count.index * 32}/27"]
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = each.value.address_prefixes
   service_endpoints    = ["Microsoft.Storage"]
 }

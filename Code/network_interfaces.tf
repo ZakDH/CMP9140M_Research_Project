@@ -1,13 +1,13 @@
 resource "azurerm_network_interface" "nic" {
-  name                = "nic-01-${var.vm_name}${count.index + 1}"
+  for_each            = var.nic_map
+  name                = each.value.name
   location            = azurerm_resource_group.RG-UK-South.location
   resource_group_name = azurerm_resource_group.RG-UK-South.name
-  count               = var.instance_count
   ip_configuration {
-    name                          = "${var.vm_name}${count.index + 1}"
-    subnet_id                     = azurerm_subnet.subnet[count.index].id
+    name                          = "${each.value.name}-internal"
+    subnet_id                     = azurerm_subnet.subnet[each.value.subnet].id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.publicip[count.index].id
+    #public_ip_address_id          = azurerm_public_ip.publicip[each.value.publicip].id
   }
   tags = {
     environment = "dev"

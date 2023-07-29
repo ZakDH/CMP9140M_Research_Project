@@ -46,7 +46,7 @@ resource "azurerm_network_security_group" "project-sg" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "sga" {
-  count                     = var.instance_count
-  subnet_id                 = azurerm_subnet.subnet[count.index].id
+  for_each                  = var.subnet_map
+  subnet_id                 = azurerm_subnet.subnet[each.key].id
   network_security_group_id = azurerm_network_security_group.project-sg.id
 }
