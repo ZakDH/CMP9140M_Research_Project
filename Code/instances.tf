@@ -4,17 +4,17 @@ locals {
   }
 }
 resource "azurerm_linux_virtual_machine_scale_set" "web-vmss" {
-  for_each                        = var.vmss_map
-  name                            = each.value.name
-  resource_group_name             = azurerm_resource_group.RG-UK-South.name
-  location                        = azurerm_resource_group.RG-UK-South.location
-  sku                             = "Standard_F2"
-  instances                       = 1
-  admin_username                  = "adminuser"
-  admin_password                  = "P@ssw0rd123!"
-  user_data                       = base64encode(templatefile("linux_userdata.tftpl", local.data_inputs))
-  zones                           = each.value.zone
-  disable_password_authentication = false
+  for_each            = var.vmss_map
+  name                = each.value.name
+  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  location            = azurerm_resource_group.RG-UK-South.location
+  sku                 = "Standard_F2"
+  instances           = 1
+  admin_username      = "adminuser"
+  #admin_password                  = "P@ssw0rd123!"
+  user_data = base64encode(templatefile("linux_userdata.tftpl", local.data_inputs))
+  zones     = each.value.zone
+  #disable_password_authentication = false
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
@@ -32,18 +32,21 @@ resource "azurerm_linux_virtual_machine_scale_set" "web-vmss" {
     caching              = "ReadWrite"
   }
 
-  custom_data = base64encode(<<EOF
-  #!/bin/bash
-  echo "Hello from the outside world!"
-  EOF
-  )
+  # custom_data = base64encode(<<EOF
+  # #!/bin/bash
+  # echo "Hello from the outside world!"
+  # EOF
+  # )
 
   network_interface {
-    name    = "${each.value.name}-nic" # Specify a name for the NIC
-    primary = true                     # Set this to true for the primary NIC
+    name    = "${each.value.name}-nic"
+    primary = true
+
     ip_configuration {
-      name      = "${each.value.name}-ipconfig" # Specify a name for the IP configuration
-      subnet_id = azurerm_subnet.subnet[each.value.subnet].id
+      name                                   = "${each.value.name}-ipconfig"
+      primary                                = true
+      subnet_id                              = azurerm_subnet.subnet[each.value.subnet].id
+      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.vmss-lb-bap.id]
     }
   }
 }
