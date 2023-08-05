@@ -8,6 +8,13 @@ resource "azurerm_virtual_network" "vnet" {
   }
 }
 
+resource "azurerm_subnet" "internal" {
+  name                 = "internal"
+  resource_group_name  = azurerm_resource_group.RG-UK-South.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.0.0/27"]
+}
+
 resource "azurerm_subnet" "subnet" {
   for_each             = var.subnet_map
   name                 = each.value.name

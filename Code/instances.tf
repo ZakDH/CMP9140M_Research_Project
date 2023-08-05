@@ -3,45 +3,17 @@ locals {
     heading_one = var.heading_one
   }
 }
-resource "azurerm_lb" "vmss-lb" {
-  for_each            = var.vmss_lb_map
-  name                = each.value.name
-  location            = azurerm_resource_group.RG-UK-South.location
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
-
-  frontend_ip_configuration {
-    name                 = "${each.value.name}-frontendip"
-    public_ip_address_id = azurerm_public_ip.publicip[each.value.publicip].id
-  }
-}
-
-resource "azurerm_lb_backend_address_pool" "vmss-lb-bap" {
-  for_each            = var.vmss_lb_map
-  loadbalancer_id = azurerm_lb.vmss-lb[each.value.vmss-lb].id
-  name            = "${each.value.name}-bap"
-}
-
-resource "azurerm_lb_rule" "vmss-lb-rule" {
-  for_each            = var.vmss_lb_map
-  loadbalancer_id                = azurerm_lb.vmss-lb[each.value.vmss-lb].id
-  name                           = "LBRule"
-  protocol                       = "Tcp"
-  frontend_port                  = 80
-  backend_port                   = 80
-  frontend_ip_configuration_name = "vmss-ipconfig"
-  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.vmss-lb-bap.id]
-}
 
 resource "azurerm_linux_virtual_machine_scale_set" "web-vmss" {
-  for_each            = var.vmss_map
-  name                = each.value.name
+  name                = "web-vmss"
   resource_group_name = azurerm_resource_group.RG-UK-South.name
   location            = azurerm_resource_group.RG-UK-South.location
   sku                 = "Standard_F2"
-  instances           = 1
+  instances           = 3
   admin_username      = "adminuser"
-  user_data = base64encode(templatefile("linux_userdata.tftpl", local.data_inputs))
-  zones     = each.value.zone
+  user_data           = base64encode(templatefile("linux_userdata.tftpl", local.data_inputs))
+  zones               = ["1", "2", "3"]
+  zone_balance        = true
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
@@ -66,15 +38,129 @@ resource "azurerm_linux_virtual_machine_scale_set" "web-vmss" {
   # )
 
   network_interface {
-    name    = "${each.value.name}-nic"
+    name    = "web-vmss-nic"
     primary = true
 
     ip_configuration {
-      name                                   = "${each.value.name}-ipconfig"
+      name                                   = "publiciplb"
       primary                                = true
-      subnet_id                              = azurerm_subnet.subnet[each.value.subnet].id
+      subnet_id                              = azurerm_subnet.internal.id
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.vmss-lb-bap.id]
     }
+  }
+}
+
+resource "azurerm_monitor_autoscale_setting" "example" {
+  name                = "myAutoscaleSetting"
+  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  location            = azurerm_resource_group.RG-UK-South.location
+  target_resource_id  = azurerm_linux_virtual_machine_scale_set.web-vmss.id
+
+  notification {
+    email {
+      send_to_subscription_administrator    = true
+      send_to_subscription_co_administrator = true
+      custom_emails                         = ["admin@contoso.com"]
+    }
+  }
+
+  profile {
+    name = "defaultProfile"
+
+    capacity {
+      default = 3
+      minimum = 3
+      maximum = 9
+    }
+    #PERCENTAGE CPU METRIC RULES
+    #Scale Out
+    rule {
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = 1
+        cooldown  = "PT5M"
+      }
+
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.web-vmss.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 75
+      }
+    }
+    #Scale in
+    rule {
+      scale_action {
+        direction = "Decrease"
+        type      = "ChangeCount"
+        value     = 1
+        cooldown  = "PT5M"
+      }
+
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.web-vmss.id
+        metric_namespace   = "microsoft.compute/virtualmachinescalesets"
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 25
+      }
+    }
+
+    #Memory-bytes Metric Rules
+    #Scale Out
+    rule {
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = 1
+        cooldown  = "PT5M"
+      }
+
+      metric_trigger {
+        metric_name        = "Available Memory Bytes"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.web-vmss.id
+        metric_namespace   = "microsoft.compute/virtualmachinescalesets"
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 1073741824 #Increase 1 VM when memory in Bytes is less than 
+      }
+    }
+    #Scale In
+    rule {
+      scale_action {
+        direction = "Decrease"
+        type      = "ChangeCount"
+        value     = 1
+        cooldown  = "PT5M"
+      }
+
+      metric_trigger {
+        metric_name        = "Available Memory Bytes"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.web-vmss.id
+        metric_namespace   = "microsoft.compute/virtualmachinescalesets"
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 2147483648 #Increase 1 VM when memory in Bytes is greater than 
+      }
+    }
+  }
+  predictive {
+    scale_mode = "Enabled"
   }
 }
 

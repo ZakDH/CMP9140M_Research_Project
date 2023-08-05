@@ -11,15 +11,15 @@ variable "subnet_map" {
   default = {
     "subnet-1" = {
       name             = "subnet-1"
-      address_prefixes = ["10.0.0.0/27"]
+      address_prefixes = ["10.0.0.32/27"]
     }
     "subnet-2" = {
       name             = "subnet-2"
-      address_prefixes = ["10.0.0.32/27"]
+      address_prefixes = ["10.0.0.64/27"]
     }
     "subnet-3" = {
       name             = "subnet-3"
-      address_prefixes = ["10.0.0.64/27"]
+      address_prefixes = ["10.0.0.96/27"]
     }
   }
 }
@@ -97,14 +97,25 @@ variable "vm_map" {
 
 variable "vmss_lb_map" {
   type = map(object({
-    name = string
+    name     = string
     ipconfig = string
   }))
   default = {
     "vmss-lb-1" = {
-      name = "vmss-lb-1"
-      ipconfig = "ipconfig-1"
+      name     = "vmss-lb-1"
+      ipconfig = "publicip-1"
+      backend  = "vmss-lb-bap-1"
     }
+    # "vmss-lb-2" = {
+    #   name     = "vmss-lb-2"
+    #   ipconfig = "publicip-2"
+    #   backend  = "vmss-lb-bap-2"
+    # }
+    # "vmss-lb-3" = {
+    #   name     = "vmss-lb-3"
+    #   ipconfig = "publicip-3"
+    #   backend  = "vmss-lb-bap-3"
+    # }
   }
 }
 
@@ -115,6 +126,7 @@ variable "vmss_map" {
     nic      = string
     ipconfig = string
     subnet   = string
+    backend  = string
   }))
   default = {
     "web-vmss-1" = {
@@ -123,6 +135,7 @@ variable "vmss_map" {
       nic      = "nic-01"
       ipconfig = "ipconfig-1"
       subnet   = "subnet-1"
+      backend  = "vmss-lb-bap-1"
     }
     "web-vmss-2" = {
       name     = "web-vmss-2"
@@ -130,6 +143,7 @@ variable "vmss_map" {
       nic      = "nic-02"
       ipconfig = "ipconfig-2"
       subnet   = "subnet-2"
+      backend  = "vmss-lb-bap-2"
     }
     "web-vmss-3" = {
       name     = "web-vmss-3"
@@ -137,6 +151,7 @@ variable "vmss_map" {
       nic      = "nic-03"
       ipconfig = "ipconfig-3"
       subnet   = "subnet-3"
+      backend  = "vmss-lb-bap-3"
     }
   }
 }
