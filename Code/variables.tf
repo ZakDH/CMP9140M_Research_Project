@@ -95,6 +95,19 @@ variable "vm_map" {
   }
 }
 
+variable "vmss_lb_map" {
+  type = map(object({
+    name = string
+    ipconfig = string
+  }))
+  default = {
+    "vmss-lb-1" = {
+      name = "vmss-lb-1"
+      ipconfig = "ipconfig-1"
+    }
+  }
+}
+
 variable "vmss_map" {
   type = map(object({
     name     = string
@@ -111,19 +124,19 @@ variable "vmss_map" {
       ipconfig = "ipconfig-1"
       subnet   = "subnet-1"
     }
-    # "web-vmss-2" = {
-    #   name     = "web-vmss-2"
-    #   zone     = ["2"]
-    #   nic      = "nic-02"
-    #   ipconfig = "ipconfig-2"
-    #   subnet   = "subnet-2"
-    # }
-    # "web-vmss-3" = {
-    #   name     = "web-vmss-3"
-    #   zone     = ["3"]
-    #   nic      = "nic-03"
-    #   ipconfig = "ipconfig-3"
-    #   subnet   = "subnet-3"
-    # }
+    "web-vmss-2" = {
+      name     = "web-vmss-2"
+      zone     = ["2"]
+      nic      = "nic-02"
+      ipconfig = "ipconfig-2"
+      subnet   = "subnet-2"
+    }
+    "web-vmss-3" = {
+      name     = "web-vmss-3"
+      zone     = ["3"]
+      nic      = "nic-03"
+      ipconfig = "ipconfig-3"
+      subnet   = "subnet-3"
+    }
   }
 }

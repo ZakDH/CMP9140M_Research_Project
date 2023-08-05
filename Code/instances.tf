@@ -3,6 +3,35 @@ locals {
     heading_one = var.heading_one
   }
 }
+resource "azurerm_lb" "vmss-lb" {
+  for_each            = var.vmss_lb_map
+  name                = each.value.name
+  location            = azurerm_resource_group.RG-UK-South.location
+  resource_group_name = azurerm_resource_group.RG-UK-South.name
+
+  frontend_ip_configuration {
+    name                 = "${each.value.name}-frontendip"
+    public_ip_address_id = azurerm_public_ip.publicip[each.value.publicip].id
+  }
+}
+
+resource "azurerm_lb_backend_address_pool" "vmss-lb-bap" {
+  for_each            = var.vmss_lb_map
+  loadbalancer_id = azurerm_lb.vmss-lb[each.value.vmss-lb].id
+  name            = "${each.value.name}-bap"
+}
+
+resource "azurerm_lb_rule" "vmss-lb-rule" {
+  for_each            = var.vmss_lb_map
+  loadbalancer_id                = azurerm_lb.vmss-lb[each.value.vmss-lb].id
+  name                           = "LBRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "vmss-ipconfig"
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.vmss-lb-bap.id]
+}
+
 resource "azurerm_linux_virtual_machine_scale_set" "web-vmss" {
   for_each            = var.vmss_map
   name                = each.value.name
@@ -11,10 +40,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "web-vmss" {
   sku                 = "Standard_F2"
   instances           = 1
   admin_username      = "adminuser"
-  #admin_password                  = "P@ssw0rd123!"
   user_data = base64encode(templatefile("linux_userdata.tftpl", local.data_inputs))
   zones     = each.value.zone
-  #disable_password_authentication = false
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
