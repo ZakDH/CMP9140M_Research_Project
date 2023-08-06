@@ -5,7 +5,7 @@ resource "azurerm_network_security_group" "project-sg" {
 
   security_rule {
     name                       = "Allow_HTTP"
-    priority                   = 200
+    priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -17,7 +17,7 @@ resource "azurerm_network_security_group" "project-sg" {
 
   security_rule {
     name                       = "Allow_HTTPS"
-    priority                   = 101
+    priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -28,8 +28,13 @@ resource "azurerm_network_security_group" "project-sg" {
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "sga" {
+resource "azurerm_subnet_network_security_group_association" "business-sga" {
   for_each                  = var.subnet_map
   subnet_id                 = azurerm_subnet.business-subnet[each.key].id
+  network_security_group_id = azurerm_network_security_group.project-sg.id
+}
+
+resource "azurerm_subnet_network_security_group_association" "web-sga" {
+  subnet_id                 = azurerm_subnet.web-subnet.id
   network_security_group_id = azurerm_network_security_group.project-sg.id
 }
