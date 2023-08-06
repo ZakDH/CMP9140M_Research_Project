@@ -32,9 +32,9 @@ resource "azurerm_windows_virtual_machine_scale_set" "web-vmss" {
     primary = true
 
     ip_configuration {
-      name                                   = "publiciplb"
+      name                                   = "web-ip"
       primary                                = true
-      subnet_id                              = azurerm_subnet.internal.id
+      subnet_id                              = azurerm_subnet.web-subnet.id
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.vmss-lb-bap.id]
     }
   }
@@ -104,7 +104,7 @@ resource "azurerm_monitor_autoscale_setting" "example" {
     capacity {
       default = 3
       minimum = 3
-      maximum = 9
+      maximum = 10
     }
     #PERCENTAGE CPU METRIC RULES
     #Scale Out

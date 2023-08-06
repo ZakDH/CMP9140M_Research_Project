@@ -9,16 +9,16 @@ variable "subnet_map" {
     address_prefixes = list(string)
   }))
   default = {
-    "subnet-1" = {
-      name             = "subnet-1"
+    "business-subnet-1" = {
+      name             = "business-subnet-1"
       address_prefixes = ["10.0.0.32/27"]
     }
-    "subnet-2" = {
-      name             = "subnet-2"
+    "business-subnet-2" = {
+      name             = "business-subnet-2"
       address_prefixes = ["10.0.0.64/27"]
     }
-    "subnet-3" = {
-      name             = "subnet-3"
+    "business-subnet-3" = {
+      name             = "business-subnet-3"
       address_prefixes = ["10.0.0.96/27"]
     }
   }
@@ -30,16 +30,16 @@ variable "ip_map" {
     zones = list(string)
   }))
   default = {
-    "publicip-1" = {
-      name  = "publicip-1"
+    "business-ip-1" = {
+      name  = "business-ip-1"
       zones = ["1"]
     }
-    "publicip-2" = {
-      name  = "publicip-2"
+    "business-ip-2" = {
+      name  = "business-ip-2"
       zones = ["2"]
     }
-    "publicip-3" = {
-      name  = "publicip-3"
+    "business-ip-3" = {
+      name  = "business-ip-3"
       zones = ["3"]
     }
   }
@@ -54,18 +54,18 @@ variable "nic_map" {
   default = {
     "nic-1" = {
       name     = "nic-1"
-      ipconfig = "publicip-1"
-      subnet   = "subnet-1"
+      ipconfig = "business-ip-1"
+      subnet   = "business-subnet-1"
     }
     "nic-2" = {
       name     = "nic-2"
-      ipconfig = "publicip-2"
-      subnet   = "subnet-2"
+      ipconfig = "business-ip-2"
+      subnet   = "business-subnet-2"
     }
     "nic-3" = {
       name     = "nic-3"
-      ipconfig = "publicip-3"
-      subnet   = "subnet-3"
+      ipconfig = "business-ip-3"
+      subnet   = "business-subnet-3"
     }
   }
 }
@@ -95,63 +95,22 @@ variable "vm_map" {
   }
 }
 
-variable "vmss_lb_map" {
-  type = map(object({
-    name     = string
-    ipconfig = string
-  }))
+variable "public-applications" {
   default = {
-    "vmss-lb-1" = {
-      name     = "vmss-lb-1"
-      ipconfig = "publicip-1"
-      backend  = "vmss-lb-bap-1"
-    }
-    # "vmss-lb-2" = {
-    #   name     = "vmss-lb-2"
-    #   ipconfig = "publicip-2"
-    #   backend  = "vmss-lb-bap-2"
-    # }
-    # "vmss-lb-3" = {
-    #   name     = "vmss-lb-3"
-    #   ipconfig = "publicip-3"
-    #   backend  = "vmss-lb-bap-3"
-    # }
-  }
-}
-
-variable "vmss_map" {
-  type = map(object({
-    name     = string
-    zone     = list(string)
-    nic      = string
-    ipconfig = string
-    subnet   = string
-    backend  = string
-  }))
-  default = {
-    "web-vmss-1" = {
-      name     = "web-vmss-1"
-      zone     = ["1"]
-      nic      = "nic-01"
-      ipconfig = "ipconfig-1"
-      subnet   = "subnet-1"
-      backend  = "vmss-lb-bap-1"
-    }
-    "web-vmss-2" = {
-      name     = "web-vmss-2"
-      zone     = ["2"]
-      nic      = "nic-02"
-      ipconfig = "ipconfig-2"
-      subnet   = "subnet-2"
-      backend  = "vmss-lb-bap-2"
-    }
-    "web-vmss-3" = {
-      name     = "web-vmss-3"
-      zone     = ["3"]
-      nic      = "nic-03"
-      ipconfig = "ipconfig-3"
-      subnet   = "subnet-3"
-      backend  = "vmss-lb-bap-3"
-    }
+    "http" = {
+      frontendPort = "80",
+      backendPort  = "80",
+      protocol     = "Tcp",
+    },
+    "https" = {
+      frontendPort = "443",
+      backendPort  = "443",
+      protocol     = "Tcp",
+    },
+    # "breaks" = {
+    #   frontendPort = "445",
+    #   backendPort  = "445",
+    #   protocol     = "Tcp",
+    # },
   }
 }
