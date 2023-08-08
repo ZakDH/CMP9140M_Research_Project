@@ -1,7 +1,7 @@
 resource "azurerm_mssql_server" "web-tier-server01" {
   name                = "web-tier-server01"
-  location            = azurerm_resource_group.RG-UK-South.location
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  location            = azurerm_resource_group.RG-Primary-Region.location
+  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
 
   administrator_login          = "mysqladminun"
   administrator_login_password = "H@Sh1CoR3!"
@@ -15,8 +15,8 @@ resource "azurerm_mssql_database" "web-tier-db01" {
 
 resource "azurerm_mssql_server" "business-tier-server01" {
   name                = "business-tier-server01"
-  location            = azurerm_resource_group.RG-UK-South.location
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  location            = azurerm_resource_group.RG-Primary-Region.location
+  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
 
   administrator_login          = "mysqladminun"
   administrator_login_password = "H@Sh1CoR3!"

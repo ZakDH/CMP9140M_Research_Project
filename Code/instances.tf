@@ -6,8 +6,8 @@ locals {
 
 resource "azurerm_windows_virtual_machine_scale_set" "web-vmss" {
   name                = "web-vmss"
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
-  location            = azurerm_resource_group.RG-UK-South.location
+  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
+  location            = azurerm_resource_group.RG-Primary-Region.location
   sku                 = "Standard_F2"
   instances           = 3
   admin_username      = "adminuser"
@@ -15,6 +15,7 @@ resource "azurerm_windows_virtual_machine_scale_set" "web-vmss" {
   upgrade_mode        = "Automatic"
   zones               = ["1", "2", "3"]
   zone_balance        = true
+
   source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
@@ -40,32 +41,32 @@ resource "azurerm_windows_virtual_machine_scale_set" "web-vmss" {
   }
 }
 
-resource "azurerm_storage_account" "appstore" {
-  name                     = "appstore457768709"
-  resource_group_name      = azurerm_resource_group.RG-UK-South.name
-  location                 = azurerm_resource_group.RG-UK-South.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  #allow_blob_public_access = true
-}
+# resource "azurerm_storage_account" "appstore" {
+#   name                     = "appstore457768709"
+#   resource_group_name      = azurerm_resource_group.RG-Primary-Region.name
+#   location                 = azurerm_resource_group.RG-Primary-Region.location
+#   account_tier             = "Standard"
+#   account_replication_type = "LRS"
+#   #allow_blob_public_access = true
+# }
 
-resource "azurerm_storage_container" "data" {
-  name                  = "data"
-  storage_account_name  = "appstore457768709"
-  container_access_type = "blob"
-  depends_on = [
-    azurerm_storage_account.appstore
-  ]
-}
+# resource "azurerm_storage_container" "data" {
+#   name                  = "data"
+#   storage_account_name  = "appstore457768709"
+#   container_access_type = "blob"
+#   depends_on = [
+#     azurerm_storage_account.appstore
+#   ]
+# }
 
-resource "azurerm_storage_blob" "IIS_config" {
-  name                   = "IIS_Config.ps1"
-  storage_account_name   = "appstore457768709"
-  storage_container_name = "data"
-  type                   = "Block"
-  source                 = "IIS_Config.ps1"
-  depends_on             = [azurerm_storage_container.data]
-}
+# resource "azurerm_storage_blob" "IIS_config" {
+#   name                   = "IIS_Config.ps1"
+#   storage_account_name   = "appstore457768709"
+#   storage_container_name = "data"
+#   type                   = "Block"
+#   source                 = "IIS_Config.ps1"
+#   depends_on             = [azurerm_storage_container.data]
+# }
 
 resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
   name                         = "scaleset-extension"
@@ -73,21 +74,20 @@ resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
   publisher                    = "Microsoft.Compute"
   type                         = "CustomScriptExtension"
   type_handler_version         = "1.9"
-  depends_on = [
-    azurerm_storage_blob.IIS_config
-  ]
+  depends_on                   = [azurerm_storage_blob.primary_web_blob] # Depends on the blob to ensure its creation
+
   settings = <<SETTINGS
     {
-        "fileUris": ["https://${azurerm_storage_account.appstore.name}.blob.core.windows.net/data/IIS_Config.ps1"],
-          "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"     
+        "fileUris": ["https://${azurerm_storage_account.primary_web_storage.name}.blob.core.windows.net/${azurerm_storage_container.primary_web_container.name}/IIS_Config.ps1"],
+        "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
     }
 SETTINGS
 }
 
-resource "azurerm_monitor_autoscale_setting" "example" {
+resource "azurerm_monitor_autoscale_setting" "autoscale" {
   name                = "myAutoscaleSetting"
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
-  location            = azurerm_resource_group.RG-UK-South.location
+  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
+  location            = azurerm_resource_group.RG-Primary-Region.location
   target_resource_id  = azurerm_windows_virtual_machine_scale_set.web-vmss.id
 
   notification {
@@ -201,8 +201,8 @@ resource "azurerm_monitor_autoscale_setting" "example" {
 resource "azurerm_windows_virtual_machine" "business-vm" {
   for_each              = var.vm_map
   name                  = each.value.name
-  resource_group_name   = azurerm_resource_group.RG-UK-South.name
-  location              = azurerm_resource_group.RG-UK-South.location
+  resource_group_name   = azurerm_resource_group.RG-Primary-Region.name
+  location              = azurerm_resource_group.RG-Primary-Region.location
   zone                  = each.value.zone
   size                  = "Standard_B2s"
   admin_username        = "adminuser"
@@ -219,24 +219,20 @@ resource "azurerm_windows_virtual_machine" "business-vm" {
     sku       = "2022-datacenter-azure-edition"
     version   = "latest"
   }
-
-  # boot_diagnostics {
-  #   storage_account_uri = data.azurerm_storage_blob.primarystorage01
-  # }
 }
-# # Install IIS web server to the virtual machine
-# resource "azurerm_virtual_machine_extension" "web-server" {
-#   name                       = "web-server-${count.index + 1}"
-#   count                      = var.instance_count
-#   virtual_machine_id         = azurerm_windows_virtual_machine.vm[count.index].id
-#   publisher                  = "Microsoft.Compute"
-#   type                       = "CustomScriptExtension"
-#   type_handler_version       = "1.8"
-#   auto_upgrade_minor_version = true
+# Install IIS web server to the virtual machine
+resource "azurerm_virtual_machine_extension" "web-server" {
+  for_each             = var.vme_map
+  name                 = each.value.name
+  virtual_machine_id   = azurerm_windows_virtual_machine.business-vm[each.value.vm].id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.9"
 
-#   settings = <<SETTINGS
-#     {
-#       "commandToExecute": "powershell -ExecutionPolicy Unrestricted Install-WindowsFeature -Name Web-Server -IncludeAllSubFeature -IncludeManagementTools"
-#     }
-#   SETTINGS
-# }
+  settings = <<SETTINGS
+    {
+        "fileUris": ["https://${azurerm_storage_account.primary_business_storage.name}.blob.core.windows.net/${azurerm_storage_container.primary_business_container.name}/IIS_Config.ps1"],
+        "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
+    }
+  SETTINGS
+}

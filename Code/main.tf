@@ -18,9 +18,17 @@ provider "azurerm" {
   }
 }
 
-resource "azurerm_resource_group" "RG-UK-South" {
-  name     = "RG-UK-South"
+resource "azurerm_resource_group" "RG-Primary-Region" {
+  name     = "RG-Primary-Region"
   location = "UK South"
+  tags = {
+    environment = "dev"
+  }
+}
+
+resource "azurerm_resource_group" "RG-Secondary-Region" {
+  name     = "RG-Secondary-Region"
+  location = "West Europe"
   tags = {
     environment = "dev"
   }

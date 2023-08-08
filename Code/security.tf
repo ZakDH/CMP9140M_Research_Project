@@ -1,7 +1,7 @@
 resource "azurerm_network_security_group" "project-sg" {
   name                = "project-sg"
-  location            = azurerm_resource_group.RG-UK-South.location
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  location            = azurerm_resource_group.RG-Primary-Region.location
+  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
 
   security_rule {
     name                       = "Allow_HTTP"
@@ -17,7 +17,7 @@ resource "azurerm_network_security_group" "project-sg" {
 
   security_rule {
     name                       = "Allow_HTTPS"
-    priority                   = 100
+    priority                   = 101
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"

@@ -1,7 +1,7 @@
 resource "azurerm_lb" "vmss-lb" {
   name                = "vmss-lb"
-  location            = azurerm_resource_group.RG-UK-South.location
-  resource_group_name = azurerm_resource_group.RG-UK-South.name
+  location            = azurerm_resource_group.RG-Primary-Region.location
+  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
   sku                 = "Standard"
   sku_tier            = "Regional"
 

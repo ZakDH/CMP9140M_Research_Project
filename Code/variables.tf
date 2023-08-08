@@ -95,6 +95,27 @@ variable "vm_map" {
   }
 }
 
+variable "vme_map" {
+  type = map(object({
+    name = string
+    vm   = string
+  }))
+  default = {
+    "business-vm-server-1" = {
+      name = "business-vm-server-1"
+      vm   = "business-vm-1"
+    }
+    "business-vm-server-2" = {
+      name = "business-vm-server-2"
+      vm   = "business-vm-2"
+    }
+    "business-vm-server-3" = {
+      name = "business-vm-server-3"
+      vm   = "business-vm-3"
+    }
+  }
+}
+
 variable "public-applications" {
   default = {
     "http" = {
