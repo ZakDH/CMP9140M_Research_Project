@@ -1,7 +1,5 @@
 #!/bin/bash
 
-terraform apply -destroy
-
 cd primary_region
 terraform apply -destroy
 cd ..
@@ -9,3 +7,5 @@ cd ..
 # cd secondary_region
 # terraform apply -destroy
 # cd ..
+
+terraform apply -destroy
