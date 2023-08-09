@@ -9,16 +9,16 @@ variable "subnet_map" {
     address_prefixes = list(string)
   }))
   default = {
-    "business-subnet-1" = {
-      name             = "business-subnet-1"
+    "primary-business-subnet-1" = {
+      name             = "primary-business-subnet-1"
       address_prefixes = ["10.0.0.32/27"]
     }
-    "business-subnet-2" = {
-      name             = "business-subnet-2"
+    "primary-business-subnet-2" = {
+      name             = "primary-business-subnet-2"
       address_prefixes = ["10.0.0.64/27"]
     }
-    "business-subnet-3" = {
-      name             = "business-subnet-3"
+    "primary-business-subnet-3" = {
+      name             = "primary-business-subnet-3"
       address_prefixes = ["10.0.0.96/27"]
     }
   }
@@ -55,17 +55,17 @@ variable "nic_map" {
     "nic-1" = {
       name     = "nic-1"
       ipconfig = "business-ip-1"
-      subnet   = "business-subnet-1"
+      subnet   = "primary-business-subnet-1"
     }
     "nic-2" = {
       name     = "nic-2"
       ipconfig = "business-ip-2"
-      subnet   = "business-subnet-2"
+      subnet   = "primary-business-subnet-2"
     }
     "nic-3" = {
       name     = "nic-3"
       ipconfig = "business-ip-3"
-      subnet   = "business-subnet-3"
+      subnet   = "primary-business-subnet-3"
     }
   }
 }

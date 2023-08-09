@@ -33,3 +33,11 @@ resource "azurerm_resource_group" "RG-Secondary-Region" {
     environment = "dev"
   }
 }
+
+output "primary_rg" {
+  value = azurerm_resource_group.RG-Primary-Region.name
+}
+
+output "secondary_rg" {
+  value = azurerm_resource_group.RG-Secondary-Region.name
+}

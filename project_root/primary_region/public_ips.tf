@@ -1,8 +1,8 @@
-resource "azurerm_public_ip" "business-ip" {
+resource "azurerm_public_ip" "primary-business-ip" {
   for_each            = var.ip_map
   name                = each.value.name
-  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
-  location            = azurerm_resource_group.RG-Primary-Region.location
+  resource_group_name = data.azurerm_resource_group.primary_rg.name
+  location            = data.azurerm_resource_group.primary_rg.location
   allocation_method   = "Static"
   sku                 = "Standard"
   zones               = each.value.zones
@@ -11,10 +11,10 @@ resource "azurerm_public_ip" "business-ip" {
   }
 }
 
-resource "azurerm_public_ip" "web-ip" {
+resource "azurerm_public_ip" "primary-web-ip" {
   name                = "web-ip"
-  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
-  location            = azurerm_resource_group.RG-Primary-Region.location
+  resource_group_name = data.azurerm_resource_group.primary_rg.name
+  location            = data.azurerm_resource_group.primary_rg.location
   allocation_method   = "Static"
   sku                 = "Standard"
   zones               = ["1", "2", "3"]

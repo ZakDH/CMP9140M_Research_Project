@@ -1,7 +1,7 @@
-resource "azurerm_network_security_group" "project-sg" {
-  name                = "project-sg"
-  location            = azurerm_resource_group.RG-Primary-Region.location
-  resource_group_name = azurerm_resource_group.RG-Primary-Region.name
+resource "azurerm_network_security_group" "primary-security-group" {
+  name                = "security-group"
+  location            = data.azurerm_resource_group.primary_rg.location
+  resource_group_name = data.azurerm_resource_group.primary_rg.name
 
   security_rule {
     name                       = "Allow_HTTP"
@@ -28,13 +28,13 @@ resource "azurerm_network_security_group" "project-sg" {
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "business-sga" {
+resource "azurerm_subnet_network_security_group_association" "primary-business-sga" {
   for_each                  = var.subnet_map
-  subnet_id                 = azurerm_subnet.business-subnet[each.key].id
-  network_security_group_id = azurerm_network_security_group.project-sg.id
+  subnet_id                 = azurerm_subnet.primary-business-subnet[each.key].id
+  network_security_group_id = azurerm_network_security_group.primary-security-group.id
 }
 
-resource "azurerm_subnet_network_security_group_association" "web-sga" {
-  subnet_id                 = azurerm_subnet.web-subnet.id
-  network_security_group_id = azurerm_network_security_group.project-sg.id
+resource "azurerm_subnet_network_security_group_association" "primary-web-sga" {
+  subnet_id                 = azurerm_subnet.primary-web-subnet.id
+  network_security_group_id = azurerm_network_security_group.primary-security-group.id
 }
