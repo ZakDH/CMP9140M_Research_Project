@@ -28,7 +28,7 @@ resource "azurerm_resource_group" "RG-Primary-Region" {
 
 resource "azurerm_resource_group" "RG-Secondary-Region" {
   name     = "RG-Secondary-Region"
-  location = "West Europe"
+  location = "North Europe"
   tags = {
     environment = "dev"
   }

@@ -35,5 +35,5 @@ resource "azurerm_storage_container" "secondary_business_container" {
   name                  = "secondarybusinesscontainer"
   storage_account_name  = "secondarybusinessstorage"
   container_access_type = "blob"
-  depends_on            = [azurerm_storage_account.primary_business_storage]
+  depends_on            = [azurerm_storage_account.secondary_business_storage]
 }
