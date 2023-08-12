@@ -11,15 +11,15 @@ variable "subnet_map" {
   default = {
     "secondary-business-subnet-1" = {
       name             = "secondary-business-subnet-1"
-      address_prefixes = ["10.0.0.128/27"]
+      address_prefixes = ["10.0.1.32/27"]
     }
     "secondary-business-subnet-2" = {
       name             = "secondary-business-subnet-2"
-      address_prefixes = ["10.0.0.160/27"]
+      address_prefixes = ["10.0.1.64/27"]
     }
     "secondary-business-subnet-3" = {
       name             = "secondary-business-subnet-3"
-      address_prefixes = ["10.0.0.192/27"]
+      address_prefixes = ["10.0.1.96/27"]
     }
   }
 }
