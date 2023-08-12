@@ -1,7 +1,7 @@
-resource "azurerm_windows_virtual_machine_scale_set" "secondary-web-vmss" {
+resource "azurerm_windows_virtual_machine_scale_set" "primary-web-vmss" {
   name                = "web-vmss"
-  resource_group_name = data.azurerm_resource_group.secondary_rg.name
-  location            = data.azurerm_resource_group.secondary_rg.location
+  resource_group_name = data.azurerm_resource_group.primary_rg.name
+  location            = data.azurerm_resource_group.primary_rg.location
   sku                 = "Standard_F2"
   instances           = 3
   admin_username      = "adminuser"
@@ -29,23 +29,23 @@ resource "azurerm_windows_virtual_machine_scale_set" "secondary-web-vmss" {
     ip_configuration {
       name                                   = "web-ip"
       primary                                = true
-      subnet_id                              = azurerm_subnet.secondary-web-subnet.id
-      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.secondary-vmss-lb-bap.id]
+      subnet_id                              = azurerm_subnet.primary-web-subnet.id
+      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.primary-vmss-lb-bap.id]
     }
   }
 }
 
 # resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
 #   name                         = "scaleset-extension"
-#   virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+#   virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
 #   publisher                    = "Microsoft.Compute"
 #   type                         = "CustomScriptExtension"
 #   type_handler_version         = "1.9"
-#   depends_on                   = [azurerm_storage_blob.secondary_web_blob] # Depends on the blob to ensure its creation
+#   depends_on                   = [azurerm_storage_blob.primary_web_blob] # Depends on the blob to ensure its creation
 
 #   settings = <<SETTINGS
 #     {
-#         "fileUris": ["https://${azurerm_storage_account.secondary_web_storage.name}.blob.core.windows.net/${azurerm_storage_container.secondary_web_container.name}/IIS_Config.ps1"],
+#         "fileUris": ["https://${azurerm_storage_account.primary_web_storage.name}.blob.core.windows.net/${azurerm_storage_container.primary_web_container.name}/IIS_Config.ps1"],
 #         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
 #     }
 # SETTINGS
@@ -53,9 +53,9 @@ resource "azurerm_windows_virtual_machine_scale_set" "secondary-web-vmss" {
 
 resource "azurerm_monitor_autoscale_setting" "autoscale" {
   name                = "myAutoscaleSetting"
-  resource_group_name = data.azurerm_resource_group.secondary_rg.name
-  location            = data.azurerm_resource_group.secondary_rg.location
-  target_resource_id  = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+  resource_group_name = data.azurerm_resource_group.primary_rg.name
+  location            = data.azurerm_resource_group.primary_rg.location
+  target_resource_id  = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
 
   notification {
     email {
@@ -85,7 +85,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -105,7 +105,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
         metric_namespace   = "microsoft.compute/virtualmachinescalesets"
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -128,7 +128,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Available Memory Bytes"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
         metric_namespace   = "microsoft.compute/virtualmachinescalesets"
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -149,7 +149,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Available Memory Bytes"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
         metric_namespace   = "microsoft.compute/virtualmachinescalesets"
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -164,42 +164,3 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
     scale_mode = "Enabled"
   }
 }
-
-resource "azurerm_windows_virtual_machine" "business-vm" {
-  for_each              = var.vm_map
-  name                  = each.value.name
-  resource_group_name   = data.azurerm_resource_group.secondary_rg.name
-  location              = data.azurerm_resource_group.secondary_rg.location
-  zone                  = each.value.zone
-  size                  = "Standard_B2s"
-  admin_username        = "adminuser"
-  admin_password        = "P@ssw0rd123!"
-  network_interface_ids = [azurerm_network_interface.secondary-nic[each.value.nic].id]
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2022-datacenter-azure-edition"
-    version   = "latest"
-  }
-}
-# Install IIS web server to the virtual machine
-# resource "azurerm_virtual_machine_extension" "web-server" {
-#   for_each             = var.vme_map
-#   name                 = each.value.name
-#   virtual_machine_id   = azurerm_windows_virtual_machine.business-vm[each.value.vm].id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   settings = <<SETTINGS
-#     {
-#         "fileUris": ["https://${azurerm_storage_account.secondary_business_storage.name}.blob.core.windows.net/${azurerm_storage_container.secondary_business_container.name}/IIS_Config.ps1"],
-#         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
-#     }
-#   SETTINGS
-# }
