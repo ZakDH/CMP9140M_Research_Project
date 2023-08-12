@@ -18,11 +18,11 @@ data "azurerm_resource_group" "secondary_rg" {
 }
 
 data "azurerm_virtual_network" "primary_network" {
-  name = "primary-network"
+  name                = "primary-network"
   resource_group_name = "RG-Primary-Region"
 }
 
 data "azurerm_virtual_network" "secondary_network" {
-  name = "secondary-network"
+  name                = "secondary-network"
   resource_group_name = "RG-Secondary-Region"
 }

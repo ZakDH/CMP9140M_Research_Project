@@ -28,6 +28,7 @@ resource "azurerm_virtual_machine_extension" "web-server" {
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
   type_handler_version = "1.9"
+  depends_on                   = [azurerm_storage_blob.secondary_business_blob] # Depends on the blob to ensure its creation
 
   settings = <<SETTINGS
     {

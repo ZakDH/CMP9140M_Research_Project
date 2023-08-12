@@ -55,3 +55,29 @@ resource "azurerm_storage_blob" "primary_business_blob" {
   source                 = "IIS_Config.ps1"
   depends_on             = [azurerm_storage_container.primary_business_container]
 }
+
+resource "azurerm_storage_object_replication" "primary_web_replication" {
+  source_storage_account_id      = azurerm_storage_account.primary_web_storage.id
+  destination_storage_account_id = data.azurerm_storage_account.secondary_web_storage.id
+  rules {
+    source_container_name      = azurerm_storage_container.primary_web_container.name
+    destination_container_name = data.azurerm_storage_container.secondary_web_container.name
+  }
+  depends_on = [
+    azurerm_storage_container.primary_web_container,
+    data.azurerm_storage_container.secondary_web_container
+  ]
+}
+
+resource "azurerm_storage_object_replication" "primary_business_replication" {
+  source_storage_account_id      = azurerm_storage_account.primary_business_storage.id
+  destination_storage_account_id = data.azurerm_storage_account.secondary_business_storage.id
+  rules {
+    source_container_name      = azurerm_storage_container.primary_business_container.name
+    destination_container_name = data.azurerm_storage_container.secondary_business_container.name
+  }
+  depends_on = [
+    azurerm_storage_container.primary_business_container,
+    data.azurerm_storage_container.secondary_business_container
+  ]
+}
