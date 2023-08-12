@@ -35,21 +35,21 @@ resource "azurerm_windows_virtual_machine_scale_set" "secondary-web-vmss" {
   }
 }
 
-# resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
-#   name                         = "scaleset-extension"
-#   virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
-#   publisher                    = "Microsoft.Compute"
-#   type                         = "CustomScriptExtension"
-#   type_handler_version         = "1.9"
-#   depends_on                   = [azurerm_storage_blob.secondary_web_blob] # Depends on the blob to ensure its creation
+resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
+  name                         = "scaleset-extension"
+  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+  publisher                    = "Microsoft.Compute"
+  type                         = "CustomScriptExtension"
+  type_handler_version         = "1.9"
+  depends_on                   = [azurerm_storage_blob.secondary_web_blob] # Depends on the blob to ensure its creation
 
-#   settings = <<SETTINGS
-#     {
-#         "fileUris": ["https://${azurerm_storage_account.secondary_web_storage.name}.blob.core.windows.net/${azurerm_storage_container.secondary_web_container.name}/IIS_Config.ps1"],
-#         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
-#     }
-# SETTINGS
-# }
+  settings = <<SETTINGS
+    {
+        "fileUris": ["https://${azurerm_storage_account.secondary_web_storage.name}.blob.core.windows.net/${azurerm_storage_container.secondary_web_container.name}/IIS_Config.ps1"],
+        "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
+    }
+SETTINGS
+}
 
 resource "azurerm_monitor_autoscale_setting" "autoscale" {
   name                = "myAutoscaleSetting"
