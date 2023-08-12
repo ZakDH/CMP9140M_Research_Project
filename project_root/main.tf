@@ -216,10 +216,6 @@ resource "azurerm_storage_object_replication" "primary_web_replication" {
     source_container_name      = azurerm_storage_container.primary_web_container.name
     destination_container_name = azurerm_storage_container.secondary_web_container.name
   }
-  # depends_on = [
-  #   azurerm_storage_container.primary_web_container,
-  #   data.azurerm_storage_container.secondary_web_container
-  # ]
 }
 
 resource "azurerm_storage_object_replication" "primary_business_replication" {
@@ -229,10 +225,6 @@ resource "azurerm_storage_object_replication" "primary_business_replication" {
     source_container_name      = azurerm_storage_container.primary_business_container.name
     destination_container_name = azurerm_storage_container.secondary_business_container.name
   }
-  # depends_on = [
-  #   azurerm_storage_container.primary_business_container,
-  #   data.azurerm_storage_container.secondary_business_container
-  # ]
 }
 
 output "primary_network" {
