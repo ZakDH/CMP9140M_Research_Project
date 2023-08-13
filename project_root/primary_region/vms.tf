@@ -20,7 +20,6 @@ resource "azurerm_windows_virtual_machine" "business-vm" {
     version   = "latest"
   }
 }
-# Install IIS web server to the virtual machine
 resource "azurerm_virtual_machine_extension" "web-server" {
   for_each             = var.vme_map
   name                 = each.value.name
@@ -28,10 +27,10 @@ resource "azurerm_virtual_machine_extension" "web-server" {
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
   type_handler_version = "1.9"
-  settings = <<SETTINGS
+  settings             = <<SETTINGS
     {
-        "fileUris": ["https://${data.azurerm_storage_account.primary_business_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.primary_business_container.name}/IIS_Config.ps1"],
-        "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
+      "fileUris": ["https://${data.azurerm_storage_account.primary_business_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.primary_business_container.name}/IIS_Config.ps1"],
+      "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
     }
   SETTINGS
 }

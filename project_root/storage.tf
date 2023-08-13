@@ -143,35 +143,3 @@ resource "azurerm_storage_object_replication" "primary_business_replication" {
     destination_container_name = azurerm_storage_container.secondary_business_container.name
   }
 }
-
-output "primarywebstorage" {
-  value = azurerm_storage_account.secondary_web_storage.id
-}
-
-output "primarywebcontainer" {
-  value = azurerm_storage_container.secondary_web_container.name
-}
-
-output "primarybusinessstorage" {
-  value = azurerm_storage_account.secondary_business_storage.id
-}
-
-output "primarybusinesscontainer" {
-  value = azurerm_storage_container.secondary_business_container.name
-}
-
-output "secondarywebstorage" {
-  value = azurerm_storage_account.secondary_web_storage.id
-}
-
-output "secondarywebcontainer" {
-  value = azurerm_storage_container.secondary_web_container.name
-}
-
-output "secondarybusinessstorage" {
-  value = azurerm_storage_account.secondary_business_storage.id
-}
-
-output "secondarybusinesscontainer" {
-  value = azurerm_storage_container.secondary_business_container.name
-}

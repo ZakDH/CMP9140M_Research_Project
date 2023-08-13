@@ -28,7 +28,7 @@ resource "azurerm_virtual_machine_extension" "web-server" {
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
   type_handler_version = "1.9"
-  settings = <<SETTINGS
+  settings             = <<SETTINGS
     {
         "fileUris": ["https://${data.azurerm_storage_account.secondary_business_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.secondary_business_container.name}/IIS_Config.ps1"],
         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"

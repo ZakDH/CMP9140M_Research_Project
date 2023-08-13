@@ -41,7 +41,7 @@ resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
   publisher                    = "Microsoft.Compute"
   type                         = "CustomScriptExtension"
   type_handler_version         = "1.9"
-  settings = <<SETTINGS
+  settings                     = <<SETTINGS
     {
         "fileUris": ["https://${data.azurerm_storage_account.secondary_web_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.secondary_web_container.name}/IIS_Config.ps1"],
         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"

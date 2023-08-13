@@ -36,7 +36,7 @@ resource "azurerm_network_security_group" "secondary-security-group" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-   security_rule {
+  security_rule {
     name                       = "Allow_Inbound"
     priority                   = 200
     direction                  = "Inbound"
