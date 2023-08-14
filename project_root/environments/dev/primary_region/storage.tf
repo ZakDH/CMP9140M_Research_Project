@@ -1,3 +1,10 @@
+module "primary_storage" {
+  source             = "../modules/storage"
+  storage_prefix     = "primary"
+  location           = azurerm_resource_group.primary_rg.location
+  resource_group_name = azurerm_resource_group.primary_rg.name
+}
+
 # # STORAGE FOR PRIMARY WEB-VMSS
 # resource "azurerm_storage_account" "primary_web_storage" {
 #   name                     = "primaryvmssstorage"

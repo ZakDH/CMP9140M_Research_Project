@@ -1,7 +1,7 @@
-resource "azurerm_windows_virtual_machine_scale_set" "primary-web-vmss" {
+resource "azurerm_windows_virtual_machine_scale_set" "secondary-web-vmss" {
   name                = "web-vmss"
-  resource_group_name = data.azurerm_resource_group.primary_rg.name
-  location            = data.azurerm_resource_group.primary_rg.location
+  resource_group_name = data.azurerm_resource_group.secondary_rg.name
+  location            = data.azurerm_resource_group.secondary_rg.location
   sku                 = "Standard_F2"
   instances           = 3
   admin_username      = "adminuser"
@@ -29,31 +29,31 @@ resource "azurerm_windows_virtual_machine_scale_set" "primary-web-vmss" {
     ip_configuration {
       name                                   = "web-ip"
       primary                                = true
-      subnet_id                              = azurerm_subnet.primary-web-subnet.id
-      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.primary-vmss-lb-bap.id]
+      subnet_id                              = azurerm_subnet.secondary-web-subnet.id
+      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.secondary-vmss-lb-bap.id]
     }
   }
 }
 
-resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
-  name                         = "scaleset-extension"
-  virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
-  publisher                    = "Microsoft.Compute"
-  type                         = "CustomScriptExtension"
-  type_handler_version         = "1.9"
-  settings                     = <<SETTINGS
-    {
-      "fileUris": ["https://${data.azurerm_storage_account.primary_web_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.primary_web_container.name}/IIS_Config.ps1"],
-      "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
-    }
-SETTINGS
-}
+# resource "azurerm_virtual_machine_scale_set_extension" "scaleset_extension" {
+#   name                         = "scaleset-extension"
+#   virtual_machine_scale_set_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
+#   publisher                    = "Microsoft.Compute"
+#   type                         = "CustomScriptExtension"
+#   type_handler_version         = "1.9"
+#   settings                     = <<SETTINGS
+#     {
+#         "fileUris": ["https://${data.azurerm_storage_account.secondary_web_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.secondary_web_container.name}/IIS_Config.ps1"],
+#         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
+#     }
+# SETTINGS
+# }
 
 resource "azurerm_monitor_autoscale_setting" "autoscale" {
   name                = "myAutoscaleSetting"
-  resource_group_name = data.azurerm_resource_group.primary_rg.name
-  location            = data.azurerm_resource_group.primary_rg.location
-  target_resource_id  = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
+  resource_group_name = data.azurerm_resource_group.secondary_rg.name
+  location            = data.azurerm_resource_group.secondary_rg.location
+  target_resource_id  = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
 
   notification {
     email {
@@ -83,7 +83,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
         time_grain         = "PT1M"
         statistic          = "Average"
         time_window        = "PT5M"
@@ -103,7 +103,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Percentage CPU"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
         metric_namespace   = "microsoft.compute/virtualmachinescalesets"
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -126,7 +126,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Available Memory Bytes"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
         metric_namespace   = "microsoft.compute/virtualmachinescalesets"
         time_grain         = "PT1M"
         statistic          = "Average"
@@ -147,7 +147,7 @@ resource "azurerm_monitor_autoscale_setting" "autoscale" {
 
       metric_trigger {
         metric_name        = "Available Memory Bytes"
-        metric_resource_id = azurerm_windows_virtual_machine_scale_set.primary-web-vmss.id
+        metric_resource_id = azurerm_windows_virtual_machine_scale_set.secondary-web-vmss.id
         metric_namespace   = "microsoft.compute/virtualmachinescalesets"
         time_grain         = "PT1M"
         statistic          = "Average"
