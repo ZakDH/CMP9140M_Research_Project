@@ -21,17 +21,17 @@ resource "azurerm_windows_virtual_machine" "business-vm" {
   }
 }
 # Install IIS web server to the virtual machine
-resource "azurerm_virtual_machine_extension" "web-server" {
-  for_each             = var.vme_map
-  name                 = each.value.name
-  virtual_machine_id   = azurerm_windows_virtual_machine.business-vm[each.value.vm].id
-  publisher            = "Microsoft.Compute"
-  type                 = "CustomScriptExtension"
-  type_handler_version = "1.9"
-  settings             = <<SETTINGS
-    {
-        "fileUris": ["https://${data.azurerm_storage_account.secondary_business_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.secondary_business_container.name}/IIS_Config.ps1"],
-        "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
-    }
-  SETTINGS
-}
+# resource "azurerm_virtual_machine_extension" "web-server" {
+#   for_each             = var.vme_map
+#   name                 = each.value.name
+#   virtual_machine_id   = azurerm_windows_virtual_machine.business-vm[each.value.vm].id
+#   publisher            = "Microsoft.Compute"
+#   type                 = "CustomScriptExtension"
+#   type_handler_version = "1.9"
+#   settings             = <<SETTINGS
+#     {
+#         "fileUris": ["https://${data.azurerm_storage_account.secondary_business_storage.name}.blob.core.windows.net/${data.azurerm_storage_container.secondary_business_container.name}/IIS_Config.ps1"],
+#         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file IIS_Config.ps1"
+#     }
+#   SETTINGS
+# }

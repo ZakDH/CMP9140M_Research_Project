@@ -38,6 +38,6 @@ output "primary_rg" {
   value = azurerm_resource_group.RG-Primary-Region.name
 }
 
-output "RG-Secondary-Region" {
+output "secondary_rg" {
   value = azurerm_resource_group.RG-Secondary-Region.name
 }
