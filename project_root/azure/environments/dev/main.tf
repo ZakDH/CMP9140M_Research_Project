@@ -18,6 +18,7 @@ provider "azurerm" {
   }
 }
 
+# Setup the resource group into a specific region
 resource "azurerm_resource_group" "RG-Primary-Region" {
   name     = "RG-Primary-Region"
   location = "UK South"
@@ -34,6 +35,7 @@ resource "azurerm_resource_group" "RG-Secondary-Region" {
   }
 }
 
+# Output the resource group name for use in other modules
 output "primary_rg" {
   value = azurerm_resource_group.RG-Primary-Region.name
 }

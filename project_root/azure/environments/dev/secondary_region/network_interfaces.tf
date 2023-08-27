@@ -1,3 +1,4 @@
+# Configuration for network interface card
 resource "azurerm_network_interface" "secondary-nic" {
   for_each            = var.nic_map
   name                = each.value.name

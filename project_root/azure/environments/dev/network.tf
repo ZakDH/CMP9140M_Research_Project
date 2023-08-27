@@ -1,4 +1,4 @@
-
+# Configures the network and networking address space for each resource group
 resource "azurerm_virtual_network" "primary-network" {
   name                = "primary-network"
   location            = azurerm_resource_group.RG-Primary-Region.location
@@ -19,6 +19,8 @@ resource "azurerm_virtual_network" "secondary-network" {
   }
 }
 
+
+#Configures VNET peering between the two network resources
 resource "azurerm_virtual_network_peering" "peering_primary_to_secondary" {
   name                         = "primary-to-secondary"
   resource_group_name          = azurerm_resource_group.RG-Primary-Region.name
@@ -45,6 +47,7 @@ resource "azurerm_virtual_network_peering" "peering_secondary_to_primary" {
   ]
 }
 
+# Outputs the networks for use in other modules
 output "primary_network" {
   value = azurerm_virtual_network.primary-network.name
 }

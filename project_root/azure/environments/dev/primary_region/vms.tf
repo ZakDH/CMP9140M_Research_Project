@@ -1,3 +1,4 @@
+#Configuration for each virtual machine instance
 resource "azurerm_windows_virtual_machine" "business-vm" {
   for_each              = var.vm_map
   name                  = each.value.name
@@ -12,7 +13,7 @@ resource "azurerm_windows_virtual_machine" "business-vm" {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
-
+# Configures the images for each vm instance
   source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
@@ -20,6 +21,7 @@ resource "azurerm_windows_virtual_machine" "business-vm" {
     version   = "latest"
   }
 }
+# Configuration for the virtual machine extension
 resource "azurerm_virtual_machine_extension" "web-server" {
   for_each             = var.vme_map
   name                 = each.value.name

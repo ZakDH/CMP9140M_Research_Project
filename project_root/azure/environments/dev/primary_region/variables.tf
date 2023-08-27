@@ -1,8 +1,4 @@
-variable "heading_one" {
-  default = "Hi i am a virtual machine."
-  type    = string
-}
-
+# Configures the subnet variables for the names and address spaces for each subnet
 variable "subnet_map" {
   type = map(object({
     name             = string
@@ -23,7 +19,7 @@ variable "subnet_map" {
     }
   }
 }
-
+# Configures the IP variables which assigns each IP instance to a different availability zone
 variable "ip_map" {
   type = map(object({
     name  = string
@@ -44,7 +40,7 @@ variable "ip_map" {
     }
   }
 }
-
+# Configures the network interface card variables assigning each nic to the ipconfig and subnet
 variable "nic_map" {
   type = map(object({
     name     = string
@@ -69,7 +65,7 @@ variable "nic_map" {
     }
   }
 }
-
+# Configures the vm instance variables with different zones and nics
 variable "vm_map" {
   type = map(object({
     name = string
@@ -94,7 +90,7 @@ variable "vm_map" {
     }
   }
 }
-
+# Configures the vm extension instance variables and attaches them to each vm instance
 variable "vme_map" {
   type = map(object({
     name = string
@@ -115,7 +111,7 @@ variable "vme_map" {
     }
   }
 }
-
+# Configures the load balancer health probe variables with HTTP and HTTPS protocols
 variable "public-applications" {
   default = {
     "http" = {
@@ -128,10 +124,5 @@ variable "public-applications" {
       backendPort  = "443",
       protocol     = "Tcp",
     },
-    # "breaks" = {
-    #   frontendPort = "445",
-    #   backendPort  = "445",
-    #   protocol     = "Tcp",
-    # },
   }
 }

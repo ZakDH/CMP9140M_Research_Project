@@ -1,3 +1,4 @@
+# Configuration for load balancer
 resource "azurerm_lb" "secondary-vmss-lb" {
   name                = "vmss-lb"
   location            = data.azurerm_resource_group.secondary_rg.location
@@ -11,11 +12,13 @@ resource "azurerm_lb" "secondary-vmss-lb" {
   }
 }
 
+# Configuration for backend address pool
 resource "azurerm_lb_backend_address_pool" "secondary-vmss-lb-bap" {
   loadbalancer_id = azurerm_lb.secondary-vmss-lb.id
   name            = "vmss-lb-bap"
 }
 
+# Configuration for load balancing probe
 resource "azurerm_lb_probe" "secondary-lb-probe" {
   for_each        = var.public-applications
   loadbalancer_id = azurerm_lb.secondary-vmss-lb.id
@@ -24,6 +27,7 @@ resource "azurerm_lb_probe" "secondary-lb-probe" {
   port            = each.value.backendPort
 }
 
+# Configuration for scale set load balancer rule
 resource "azurerm_lb_rule" "vmss-lb-rule" {
   for_each                       = var.public-applications
   loadbalancer_id                = azurerm_lb.secondary-vmss-lb.id
