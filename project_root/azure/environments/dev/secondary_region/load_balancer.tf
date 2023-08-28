@@ -20,7 +20,7 @@ resource "azurerm_lb_backend_address_pool" "secondary-vmss-lb-bap" {
 
 # Configuration for load balancing probe
 resource "azurerm_lb_probe" "secondary-lb-probe" {
-  for_each        = var.public-applications
+  for_each        = var.probe_map
   loadbalancer_id = azurerm_lb.secondary-vmss-lb.id
   name            = "healthProbe-${each.key}"
   protocol        = each.value.protocol
@@ -29,7 +29,7 @@ resource "azurerm_lb_probe" "secondary-lb-probe" {
 
 # Configuration for scale set load balancer rule
 resource "azurerm_lb_rule" "vmss-lb-rule" {
-  for_each                       = var.public-applications
+  for_each                       = var.probe_map
   loadbalancer_id                = azurerm_lb.secondary-vmss-lb.id
   name                           = "loadBalancingRule-${each.key}"
   protocol                       = each.value.protocol

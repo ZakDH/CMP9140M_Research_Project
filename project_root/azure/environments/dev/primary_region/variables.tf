@@ -112,7 +112,7 @@ variable "vme_map" {
   }
 }
 # Configures the load balancer health probe variables with HTTP and HTTPS protocols
-variable "public-applications" {
+variable "probe_map" {
   default = {
     "http" = {
       frontendPort = "80",
